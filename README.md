@@ -50,7 +50,7 @@
 - 프로젝트 제목 작성
 - 프로젝트 주제 요약 및 readme 작성
 - 구단별 캘린더 이미지 변경 구현
-- 캘린더에 사진 넣을 수 있는 기능 구현
+- 일기 페이지에서 추가한 이미지를 캘린더에 삽입하는 기능 구현
 
 **최현진**
 - 웹 전체 폰트 선정
@@ -77,7 +77,12 @@
  - perform individual roles
 
 **4th meeting(2024/11/22):**
-- .
+- Branch orientation during PR
+- Implement your role before the next meeting
+- Implement each branch and post PR after completing
+
+**5th meeting(2024/11/25):**
+
 
 
 
