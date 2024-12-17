@@ -113,18 +113,18 @@
 <script>
 // Firebase 초기화 코드
 var firebaseConfig = {
-  apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
-  authDomain: "yyjdb-1e121.firebaseapp.com",
-  databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
-  projectId: "yyjdb-1e121",
-  storageBucket: "yyjdb-1e121.firebasestorage.app",
-  messagingSenderId: "455353963754",
-  appId: "1:455353963754:web:2a64f5411a4061e9143393"
+    apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
+    authDomain: "yyjdb-1e121.firebaseapp.com",
+    databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
+    projectId: "yyjdb-1e121",
+    storageBucket: "yyjdb-1e121.firebasestorage.app",
+    messagingSenderId: "455353963754",
+    appId: "1:455353963754:web:2a64f5411a4061e9143393"
 };
 firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-  console.log("Firestore 초기화 확인:", db);
+const db = firebase.firestore();
+const auth = firebase.auth();
+console.log("Firestore 초기화 확인:", db);
 
     async function validateLogin() {
         if (event) event.preventDefault(); // 기본 동작 방지

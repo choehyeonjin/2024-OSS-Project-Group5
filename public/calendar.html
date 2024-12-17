@@ -293,6 +293,7 @@
 
 
 
+
             <div class="stats-section">
                 <div>
                     승률: <input type="text" id="winRate" value="0.0%" readonly>
@@ -461,44 +462,48 @@
             document.getElementById("monthSelect").value = currentDate.getMonth();
         }
 
-        // // 날짜 클릭 이벤트
-        // document.getElementById("calendarGrid").addEventListener("click", function (e) {
-        //     const dayElement = e.target.closest(".calendar-day");
-        //     if (dayElement) {
-        //         if (selectedDayElement) {
-        //             selectedDayElement.classList.remove("selected");
-        //         }
+        /*
+        // 날짜 클릭 이벤트
+        document.getElementById("calendarGrid").addEventListener("click", function (e) {
+            const dayElement = e.target.closest(".calendar-day");
+            if (dayElement) {
+                if (selectedDayElement) {
+                    selectedDayElement.classList.remove("selected");
+                }
 
-        //         selectedDayElement = dayElement;
-        //         selectedDayElement.classList.add("selected");
+                selectedDayElement = dayElement;
+                selectedDayElement.classList.add("selected");
 
-        //         // 파일 업로드 창 열기
-        //         document.getElementById("imageUpload").click();
-        //     }
-        // });
+                // 파일 업로드 창 열기
+                document.getElementById("imageUpload").click();
+            }
+        });
+        */
 
-        // document.getElementById("imageUpload").addEventListener("change", function () {
-        //     const file = this.files[0];
-        //     if (file && selectedDayElement) {
-        //         const reader = new FileReader();
+        document.getElementById("imageUpload").addEventListener("change", function () {
+            const file = this.files[0];
+            if (file && selectedDayElement) {
+                const reader = new FileReader();
 
-        //         reader.onload = function (event) {
-        //             const imageUrl = event.target.result;
-        //             const dayImage = selectedDayElement.querySelector(".day-image");
+                reader.onload = function (event) {
+                    const imageUrl = event.target.result;
+                    const dayImage = selectedDayElement.querySelector(".day-image");
 
-        //             if (dayImage) {
-        //                 dayImage.src = imageUrl;
-        //                 dayImage.style.display = "block";
+                    if (dayImage) {
+                        dayImage.src = imageUrl;
+                        dayImage.style.display = "block";
 
-        //                 // 이미지가 삽입되면 셀 크기 조정
-        //                 selectedDayElement.style.minHeight = "110px";
-        //             }
-        //         };
+                        // 이미지가 삽입되면 셀 크기 조정
+                        selectedDayElement.style.minHeight = "110px";
+                    }
+                };
 
-        //         reader.readAsDataURL(file);
-        //     }
-        // });
+                reader.readAsDataURL(file);
+            }
+        });
 
+
+        
         initYearMonthSelectors();
         renderCalendar();
     </script>
