@@ -151,28 +151,71 @@ async function loadDiaryData() {
 
 loadDiaryData(); // 페이지 로드 시 실행
 
-// 이미지 데이터 저장 함수
-function saveImageForDate(date, imageUrl) {
-    const savedImages = JSON.parse(localStorage.getItem("calendarImages")) || {};
-    savedImages[date] = imageUrl; // 날짜에 이미지를 매핑
-    localStorage.setItem("calendarImages", JSON.stringify(savedImages));
+//다이어리 내용-DB연동부분
+const firebaseConfig = {
+    apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
+    authDomain: "yyjdb-1e121.firebaseapp.com",
+    projectId: "yyjdb-1e121",
+    storageBucket: "yyjdb-1e121.appspot.com",
+    messagingSenderId: "455353963754",
+    appId: "1:455353963754:web:2a64f5411a4061e9143393"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+
+
+let isSaving = false; // 저장 중인지 확인하는 변수
+
+async function saveDiary() {
+    if (isSaving) return; // 이미 저장 중이면 함수 종료
+    isSaving = true; // 저장 중 상태로 변경
+
+    try {
+        // 라인업 데이터 수집
+        const homeTeamLineup = Array.from(document.querySelectorAll('.home-team .lineup-input input'))
+            .map(input => input.value.trim());
+        const awayTeamLineup = Array.from(document.querySelectorAll('.away-team .lineup-input input'))
+            .map(input => input.value.trim());
+
+        // 기타 데이터 수집
+        const diaryData = {
+            gameDate: document.getElementById("game-date").value,
+            gameTime: document.getElementById("game-time").value,
+            weather: document.getElementById("game-weather").value,
+            stadium: document.getElementById("stadium").value,
+            result: document.getElementById("result").value,
+            homeTeamScore: parseInt(document.querySelector("[data-score='home']").value) || 0,
+            awayTeamScore: parseInt(document.querySelector("[data-score='away']").value) || 0,
+            mvp: document.getElementById("mvp").value,
+            diary: document.getElementById("diary-entry").value,
+            homeTeamLineup,
+            awayTeamLineup,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+
+        // 이미지 업로드
+        const fileInput = document.getElementById("fieldImage");
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const storageRef = storage.ref(`diaryImages/${Date.now()}_${file.name}`);
+            const snapshot = await storageRef.put(file);
+            diaryData.imageURL = await snapshot.ref.getDownloadURL();
+        }
+
+        // Firestore 저장
+        await db.collection("Diaries").add(diaryData);
+        alert("일기가 저장되었습니다!");
+        window.location.href = "calendar.html";
+    } catch (error) {
+        console.error("Error saving diary:", error);
+        alert("저장 중 문제가 발생했습니다.");
+    } finally {
+        isSaving = false; // 저장 완료 후 상태 초기화
+    }
 }
 
-// 파일 선택 시 이미지 로드 및 저장
-document.getElementById('fieldImage').addEventListener('change', (event) => {
-    const dateInput = document.getElementById('game-date').value;
-    if (!dateInput) {
-        alert('날짜를 먼저 선택해주세요.');
-        return;
-    }
-
-    const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const imageUrl = e.target.result; // base64 URL
-        saveImageForDate(dateInput, imageUrl); // 이미지 저장
-        document.getElementById('fieldDisplay').src = imageUrl; // 화면에 표시
-        document.getElementById('imageDisplayContainer').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-});
+// Save 버튼 이벤트 리스너
+document.querySelector(".save-button").addEventListener("click", saveDiary);

@@ -173,174 +173,201 @@
     <div class="add-post">
     </div>
 
-    <script>
-        const ITEMS_PER_PAGE = 15; // 한 페이지에 표시할 다이어리 개수
-        let currentPage = 1; // 현재 페이지 번호
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
 
+    <script>
+        const ITEMS_PER_PAGE = 15; // 한 페이지에 표시할 Diaries 개수
+        let currentPage = 1; // 현재 페이지 번호
+    
         // URL에서 team 파라미터 추출
         const urlParams = new URLSearchParams(window.location.search);
         const team = urlParams.get('team');
-
-        const teamColors = {
-            kia: '#EA0029',
-            samsung: '#074CA1',
-            lg: '#C30452',
-            doosan: '#131230',
-            kt: '#EB1C24',
-            ssg: '#CE0E2D',
-            lotte: '#041E42',
-            hanwha: '#F73600',
-            nc: '#315288',
-            kiwoom: '#570514'
+    
+        const postList = document.getElementById('post-list');
+        const headerTitle = document.getElementById('header-title');
+    
+        // Firestore 초기화
+        const firebaseConfig = {
+          apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
+          authDomain: "yyjdb-1e121.firebaseapp.com",
+          databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
+          projectId: "yyjdb-1e121",
+          storageBucket: "yyjdb-1e121.firebasestorage.app",
+          messagingSenderId: "455353963754",
+          appId: "1:455353963754:web:2a64f5411a4061e9143393"
         };
-
+    
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    
+        // 팀별 색상 적용
+        const teamColors = {
+          kia: '#EA0029',      // KIA
+          samsung: '#074CA1',  // 삼성
+          lg: '#C30452',       // LG
+          doosan: '#131230',    // 두산
+          kt: '#EB1C24',       // KT
+          ssg: '#CE0E2D',      // SSG
+          lotte: '#041E42',    // 롯데
+          hanwha: '#F73600',    // 한화
+          nc: '#315288',       // NC
+          kiwoom: '#570514'    // 키움
+        };
+    
         // 구단별 색상 적용
         if (team && teamColors[team]) {
-            document.documentElement.style.setProperty('--hover-color', teamColors[team]);
+          document.documentElement.style.setProperty('--hover-color', teamColors[team]);
         } else {
-            document.documentElement.style.setProperty('--hover-color', '#d32f2f');
+          document.documentElement.style.setProperty('--hover-color', '#d32f2f'); // 기본 색상
         }
-
-        // 팀별 localStorage 키
-        const teamKey = team ? `diary_${team}` : null;
-
-        // localStorage에서 다이어리 데이터 로드
-        let diaries = teamKey ? JSON.parse(localStorage.getItem(teamKey)) || [] : [];
-        const postList = document.getElementById('post-list');
-
-        // 팀별 헤더 이름 설정
-        const headerTitle = document.getElementById('header-title');
+    
+        // 팀별 제목 설정
+        const teamNames = {
+          kia: 'KIA 다이어리',
+          samsung: '삼성 다이어리',
+          lg: 'LG 다이어리',
+          doosan: '두산 다이어리',
+          kt: 'KT 다이어리',
+          ssg: 'SSG 다이어리',
+          lotte: '롯데 다이어리',
+          hanwha: '한화 다이어리',
+          nc: 'NC 다이어리',
+          kiwoom: '키움 다이어리'
+        };
+    
         if (team) {
-            const teamNames = {
-                kia: 'KIA 다이어리',
-                samsung: '삼성 다이어리',
-                lg: 'LG 다이어리',
-                doosan: '두산 다이어리',
-                kt: 'KT 다이어리',
-                ssg: 'SSG 다이어리',
-                lotte: '롯데 다이어리',
-                hanwha: '한화 다이어리',
-                nc: 'NC 다이어리',
-                kiwoom: '키움 다이어리'
-            };
-
-            headerTitle.textContent = teamNames[team] || '커뮤니티';
+          headerTitle.textContent = teamNames[team] || '다이어리';
         } else {
-            headerTitle.textContent = '커뮤니티';
+          headerTitle.textContent = '다이어리';
         }
-
-        function renderDiaries() {
-            postList.innerHTML = '';
-
-            if (diaries.length === 0) {
-                postList.innerHTML = '<p>등록된 다이어리가 없습니다.</p>';
-                return;
-            }
-
-            // 최신순 정렬
-            const sortedDiaries = diaries
-                .map((diary, index) => ({ ...diary, originalIndex: index }))
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            // 현재 페이지에 맞는 다이어리 데이터 가져오기
-            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-            const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, sortedDiaries.length);
-            const currentDiaries = sortedDiaries.slice(startIndex, endIndex);
-
-            // 다이어리 목록 렌더링
-            currentDiaries.forEach((diary) => {
-                const postItem = document.createElement('div');
-                postItem.className = 'post-item';
-                postItem.innerHTML = `
-                <div>
-                    <div class="post-title" onclick="goToDetail(${diary.originalIndex})">${diary.title}</div>
-                    <div class="post-meta">작성자: ${diary.author} | ${new Date(diary.timestamp).toLocaleString()}</div>
-                </div>
-                <div class="post-actions">
-                    <button onclick="deleteDiary(${diary.originalIndex})">삭제</button>
-                </div>
-            `;
-                postList.appendChild(postItem);
-            });
-
-            // 페이지네이션 렌더링
-            renderPagination(sortedDiaries.length);
-        }
-
-        function renderPagination(totalItems) {
-            const paginationContainer = document.getElementById('pagination');
-            paginationContainer.innerHTML = '';
-
-            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-            // 이전 페이지 버튼
-            const prevButton = document.createElement('button');
-            prevButton.innerHTML = '<';
-            prevButton.disabled = currentPage === 1;
-            prevButton.onclick = () => changePage(currentPage - 1);
-            paginationContainer.appendChild(prevButton);
-
-            // 페이지 번호 버튼
-            for (let i = 1; i <= totalPages; i++) {
-                const pageButton = document.createElement('button');
-                pageButton.innerHTML = i;
-                pageButton.className = i === currentPage ? 'active' : '';
-                pageButton.onclick = () => changePage(i);
-                paginationContainer.appendChild(pageButton);
-            }
-
-            // 다음 페이지 버튼
-            const nextButton = document.createElement('button');
-            nextButton.innerHTML = '>';
-            nextButton.disabled = currentPage === totalPages;
-            nextButton.onclick = () => changePage(currentPage + 1);
-            paginationContainer.appendChild(nextButton);
-        }
-
-        function changePage(page) {
-            currentPage = page;
-            renderDiaries();
-        }
-
-        function deleteDiary(index) {
-            if (confirm("이 다이어리를 삭제하시겠습니까?")) {
-                diaries.splice(index, 1);
-                localStorage.setItem(teamKey, JSON.stringify(diaries)); // localStorage 업데이트
-                renderDiaries();
-            }
-        }
-
-        function goToDetail(originalIndex) {
-            if (team) {
-                window.location.href = `community4.html?id=${originalIndex}&team=${team}`;
-            }
-        }
-
-        const qnaLink = document.getElementById('qna-link');
-        if (team) {
-            qnaLink.href = `community2.html?team=${team}`;
-        } else {
-            qnaLink.href = '#';
-            alert("유효한 팀이 없습니다. URL에 team 파라미터를 추가하세요.");
-        }
-
-
+        
         const comLink = document.getElementById('com-link');
-        if (team) {
-            comLink.href = `community1.html?team=${team}`;
-        } else {
-            comLink.href = '#';
-            alert("유효한 팀이 없습니다. URL에 team 파라미터를 추가하세요.");
+    if (team) {
+      comLink.href = `community1.html?team=${team}`;
+    } else {
+      comLink.href = '#';
+      alert("유효한 팀이 없습니다. URL에 team 파라미터를 추가하세요.");
+    }
+
+    const diaryLink = document.getElementById('qna-link'); // 잘못된 부분 수정
+    if (team) {
+      diaryLink.href = `community2.html?team=${team}`;
+    } else {
+      diaryLink.href = '#';
+      alert("유효한 팀이 없습니다. URL에 team 파라미터를 추가하세요.");
+    }
+
+        // Firestore에서 데이터를 로드
+        function loadDiaries() {
+          db.collection("Diaries")
+            .orderBy("createdAt", "desc") // createdAt 시간순으로 정렬
+            .get()
+            .then((querySnapshot) => {
+              const diaries = [];
+              querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                diaries.push({ ...data, id: doc.id });
+              });
+    
+              console.log("Loaded Diaries:", diaries); // 콘솔에 데이터를 출력하여 확인
+              renderDiaries(diaries);
+            })
+            .catch((error) => {
+              console.error("Error loading data: ", error);
+              postList.innerHTML = '<p>데이터를 불러오는 중 오류가 발생했습니다.</p>';
+            });
         }
-
-        // 초기 렌더링
-        if (teamKey) {
-            renderDiaries();
-        } else {
-            postList.innerHTML = '<p>유효하지 않은 팀입니다. URL에 team 파라미터를 추가하세요.</p>';
+    
+        // Diaries 목록 렌더링
+        function renderDiaries(diaries) {
+          postList.innerHTML = ''; // 기존 Diaries 목록 초기화
+    
+          if (diaries.length === 0) {
+            postList.innerHTML = '<p>등록된 다이어리가 없습니다.</p>'; // Diaries가 없을 경우 메시지 표시
+            return;
+          }
+    
+          const currentUserID = sessionStorage.getItem("userID");
+    
+          const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+          const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, diaries.length);
+          const currentDiaries = diaries.slice(startIndex, endIndex);
+    
+          currentDiaries.forEach((diary) => {
+            const postItem = document.createElement('div');
+            postItem.className = 'post-item';
+            postItem.innerHTML = `
+              <div>
+                <div class="post-title" onclick="goToDetail('${diary.id}')">${diary.gameDate}</div>
+                <div class="post-meta">작성자: ${diary.author || '익명'} | ${new Date(diary.createdAt.toDate()).toLocaleString()}</div>
+              </div>
+              ${diary.author === currentUserID ? `<div class="post-actions"><button onclick="deleteDiary('${diary.id}')">삭제</button></div>` : ''}
+            `;
+            postList.appendChild(postItem);
+          });
+    
+          renderPagination(diaries.length);
         }
-    </script>
+    
+        // Diaries 삭제 함수
+        function deleteDiary(id) {
+          if (confirm("이 다이어리를 삭제하시겠습니까?")) {
+            db.collection("Diaries").doc(id).delete()
+              .then(() => {
+                alert("다이어리가 삭제되었습니다.");
+                loadDiaries(); // 삭제 후 목록 갱신
+              })
+              .catch((error) => {
+                console.error("Error deleting document: ", error);
+              });
+          }
+        }
+    
+        // Diaries 상세 페이지로 이동
+        // Diaries 상세 페이지로 이동
+function goToDetail(id) {
+    window.location.href = `community_diary2.html?id=${id}&team=${team}`;
+}
 
-</body>
-
-</html> 
+    
+        // 페이지네이션 렌더링
+        function renderPagination(totalItems) {
+          const paginationContainer = document.getElementById('pagination');
+          paginationContainer.innerHTML = '';
+    
+          const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    
+          const prevButton = document.createElement('button');
+          prevButton.innerHTML = '<';
+          prevButton.disabled = currentPage === 1;
+          prevButton.onclick = () => changePage(currentPage - 1);
+          paginationContainer.appendChild(prevButton);
+    
+          for (let i = 1; i <= totalPages; i++) {
+            const pageButton = document.createElement('button');
+            pageButton.innerHTML = i;
+            pageButton.className = i === currentPage ? 'active' : '';
+            pageButton.onclick = () => changePage(i);
+            paginationContainer.appendChild(pageButton);
+          }
+    
+          const nextButton = document.createElement('button');
+          nextButton.innerHTML = '>';
+          nextButton.disabled = currentPage === totalPages;
+          nextButton.onclick = () => changePage(currentPage + 1);
+          paginationContainer.appendChild(nextButton);
+        }
+    
+        function changePage(page) {
+          currentPage = page;
+          loadDiaries();
+        }
+    
+        // 초기 Firestore 데이터 로드
+        loadDiaries();
+      </script>
+    
+    </body>
+    
+    </html>

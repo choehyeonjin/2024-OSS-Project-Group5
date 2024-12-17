@@ -183,7 +183,7 @@
     // 이메일 전송 함수
     function sendPasswordEmail(toEmail, userPassword) {
         $.ajax({
-            url: "http://localhost:8080/send-password", // 백엔드 엔드포인트
+            url: "https://api-htauzstwia-uc.a.run.app/send-password", // 백엔드 엔드포인트
             method: "POST",
             contentType: "application/json",
             data: JSON.stringify({

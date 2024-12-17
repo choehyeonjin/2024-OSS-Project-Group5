@@ -336,9 +336,9 @@
                 <p aria-label="Home Team Name">홈 팀</p>
             </div>
             <div>
-                <input type="number" min="0" max="99" placeholder="0" aria-label="Home Team Score">
+                <input type="number" min="0" max="99" placeholder="0" aria-label="Home Team Score" data-score="home">
                 <span class="colon">:</span>
-                <input type="number" min="0" max="99" placeholder="0" aria-label="Away Team Score">
+                <input type="number" min="0" max="99" placeholder="0" aria-label="Away Team Score" data-score="away">
             </div>
             <div>
                 <img src="" alt="어웨이 팀 로고" class="team-image">
@@ -348,11 +348,11 @@
         
         <div class="mvp-section">
             <h3>✿∘˚˳°∘ 나만의 MVP ∘°˳˚∘✿</h3>
-            <input type="text" placeholder="MVP">
+            <input type="text" id="mvp" placeholder="MVP">
         </div>
 
         <div class="lineups">
-            <div class="team">
+            <div class="team home-team">
                 <h3>홈 팀 라인업</h3>
                 <div class="lineup-input"><label>1번 타자:</label><input type="text" placeholder="선수 이름"></div>
                 <div class="lineup-input"><label>2번 타자:</label><input type="text" placeholder="선수 이름"></div>
@@ -365,6 +365,7 @@
                 <div class="lineup-input"><label>9번 타자:</label><input type="text" placeholder="선수 이름"></div>
                 <div class="lineup-input"><label>선발 투수:</label><input type="text" placeholder="선수 이름"></div>
             </div>
+            
             <div class="field">
                 <div id="imageUploadContainer">
                     <button class="image-upload-btn" id="addImageButton">이미지 추가하기</button>
@@ -374,7 +375,7 @@
                     <img id="fieldDisplay" alt="야구장 포지션" width="400">
                 </div>
             </div>
-            <div class="team">
+            <div class="team away-team">
                 <h3>어웨이 팀 라인업</h3>
                 <div class="lineup-input"><label>1번 타자:</label><input type="text" placeholder="선수 이름"></div>
                 <div class="lineup-input"><label>2번 타자:</label><input type="text" placeholder="선수 이름"></div>
@@ -391,11 +392,11 @@
 
         <div class="memo-section">
             <h3>일기</h3>
-            <textarea placeholder="일기 작성 ㄱㄱ"></textarea>
+            <textarea id="diary-entry" placeholder="일기 작성 ㄱㄱ"></textarea>
         </div>
 
         <div class="buttons">
-            <button class="save-button" onclick="openModal()">저장하기</button>
+            <button class="save-button">저장하기</button>
             <button class="back-button" onclick="goBack()">뒤로가기</button>
         </div>
     </div>
@@ -408,17 +409,17 @@
         </div>
     </div>
 
+<!-- Firebase App (기본 Firebase SDK) -->
+<script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+
+    
     <script src="diary.js"></script>
     <script>
         document.getElementById('addImageButton').addEventListener('click', function() {
-            const dateInput = document.getElementById('game-date').value;
-            if (!dateInput) {
-                alert('날짜를 선택하고 이미지를 추가하세요.');
-                return;
-            }
             document.getElementById('fieldImage').click();
         });
-
 
         function loadFieldImage(event) {
             const fieldDisplay = document.getElementById('fieldDisplay');
