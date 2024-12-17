@@ -411,8 +411,14 @@
     <script src="diary.js"></script>
     <script>
         document.getElementById('addImageButton').addEventListener('click', function() {
+            const dateInput = document.getElementById('game-date').value;
+            if (!dateInput) {
+                alert('날짜를 선택하고 이미지를 추가하세요.');
+                return;
+            }
             document.getElementById('fieldImage').click();
         });
+
 
         function loadFieldImage(event) {
             const fieldDisplay = document.getElementById('fieldDisplay');

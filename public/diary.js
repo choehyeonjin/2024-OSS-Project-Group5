@@ -151,3 +151,28 @@ async function loadDiaryData() {
 
 loadDiaryData(); // 페이지 로드 시 실행
 
+// 이미지 데이터 저장 함수
+function saveImageForDate(date, imageUrl) {
+    const savedImages = JSON.parse(localStorage.getItem("calendarImages")) || {};
+    savedImages[date] = imageUrl; // 날짜에 이미지를 매핑
+    localStorage.setItem("calendarImages", JSON.stringify(savedImages));
+}
+
+// 파일 선택 시 이미지 로드 및 저장
+document.getElementById('fieldImage').addEventListener('change', (event) => {
+    const dateInput = document.getElementById('game-date').value;
+    if (!dateInput) {
+        alert('날짜를 먼저 선택해주세요.');
+        return;
+    }
+
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const imageUrl = e.target.result; // base64 URL
+        saveImageForDate(dateInput, imageUrl); // 이미지 저장
+        document.getElementById('fieldDisplay').src = imageUrl; // 화면에 표시
+        document.getElementById('imageDisplayContainer').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+});

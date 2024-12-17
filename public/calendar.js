@@ -1,3 +1,4 @@
+// 기존 경고 메시지 처리
 function checkForAlert() {
     const urlParams = new URLSearchParams(window.location.search);
     const alertMessage = urlParams.get('alert'); // 'alert' 키 값 확인
@@ -116,5 +117,55 @@ function drawMonth() {
     ctx.fillText(`${currentMonth}`, canvas.width / 2, canvas.height / 2);
 }
 
-// 페이지 로드 후 실행
-window.onload = drawMonth;
+// 캘린더를 렌더링하는 함수
+function renderCalendar() {
+    const calendarGrid = document.getElementById("calendarGrid");
+    calendarGrid.innerHTML = `
+        <div class="day-header">SUN</div>
+        <div class="day-header">MON</div>
+        <div class="day-header">TUE</div>
+        <div class="day-header">WED</div>
+        <div class="day-header">THU</div>
+        <div class="day-header">FRI</div>
+        <div class="day-header">SAT</div>
+    `;
+
+    const savedImages = JSON.parse(localStorage.getItem("calendarImages")) || {};
+
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    // 빈 칸 추가
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        const emptyDiv = document.createElement("div");
+        calendarGrid.appendChild(emptyDiv);
+    }
+
+    // 날짜 렌더링
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        const dateDiv = document.createElement("div");
+        dateDiv.classList.add("calendar-day");
+        dateDiv.textContent = day;
+
+        const formattedDate = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        // 저장된 이미지가 있으면 날짜에 표시
+        if (savedImages[formattedDate]) {
+            const img = document.createElement("img");
+            img.src = savedImages[formattedDate];
+            img.classList.add("day-image");
+            dateDiv.appendChild(img);
+        }
+
+        calendarGrid.appendChild(dateDiv);
+    }
+}
+
+// 페이지 초기화 및 캘린더 렌더링
+window.onload = () => {
+    checkForAlert();
+    drawMonth();
+    renderCalendar();
+};
