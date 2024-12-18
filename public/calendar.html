@@ -283,7 +283,7 @@
             <!--<img src="images/KTwiz.jpg" alt="달력 이미지" width="150">-->
             <div style="position: relative; width: 300px; height: 300px; border: 1px solid white;">
                 <!-- 배경 이미지 -->
-                <img id="calendarBackground" src="images/DOOSANbears.jpg" alt="달력 배경 이미지" style="width: 300px; height: 300px; object-fit: contain;">
+                <img id="calendarBackground" src="images/KTwiz.jpg" alt="달력 배경 이미지" style="width: 300px; height: 300px; object-fit: contain;">
 
 
                 <!-- 월 숫자 텍스트 -->
@@ -347,23 +347,9 @@
         window.onload = function() {
             // URL 파라미터에서 selected_team을 가져옵니다.
             const urlParams = new URLSearchParams(window.location.search);
-            const selectedTeam = urlParams.get('selected_team') ? decodeURIComponent(urlParams.get('selected_team')) : "두산 베어스"; 
+            const selectedTeam = urlParams.get('selected_team') ? decodeURIComponent(urlParams.get('selected_team')) : "KT 위즈"; 
 
             console.log("Selected Team:", selectedTeam); // 로그로 출력하여 확인
-
-            // teamImages 객체에 해당하는 이미지 경로를 설정합니다.
-            const teamImages = {
-                "두산 베어스": "images/DOOSANbears.jpg",
-                "한화 이글스": "images/HANHWAeagles.jpg",
-                "KIA 타이거즈": "images/KIAtigers.jpg",
-                "키움 히어로즈": "images/KIWOOMheroes.jpg",
-                "KT 위즈": "images/KTwiz.jpg",
-                "LG 트윈스": "images/LGtwins.jpg",
-                "롯데 자이언츠": "images/LOTTEgiants.jpg",
-                "NC 다이노스": "images/NCdinos.jpg",
-                "삼성 라이온즈": "images/SAMSUNGlions.jpg",
-                "SSG 랜더스": "images/SSGlanders.jpg"
-            };
 
             // 배경 이미지 설정
             const imgElement = document.getElementById("calendarBackground");
@@ -371,11 +357,12 @@
             if (selectedTeam && teamImages[selectedTeam]) {
                 imgElement.src = teamImages[selectedTeam];
             } else {
-                imgElement.src = "/images/KTwiz.jpg"; // 디폴트 이미지 경로 "/images/default.jpg"
+                imgElement.src = "images/KTwiz.jpg"; // 디폴트 이미지 경로 "/images/default.jpg"
                 console.warn("No valid team selected, using default image.");
             }
         };
 
+        /*
         // Assume selected_team is passed to the calendar.html as a query parameter
         const urlParams = new URLSearchParams(window.location.search);
         const selectedTeam = urlParams.get('selected_team') ? decodeURIComponent(urlParams.get('selected_team')) : "두산 베어스"; // 예시로 두산 베어스
@@ -390,7 +377,7 @@
             const imgElement = document.getElementById("calendarBackground");
             imgElement.src = "assets/images/default.jpg"; // 디폴트 이미지 경로
             console.warn("No valid team selected, using default image.");
-        }
+        } */
 
 
         let currentDate = new Date();

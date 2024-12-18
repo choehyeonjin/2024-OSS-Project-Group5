@@ -113,95 +113,134 @@
 <script>
 // Firebase 초기화 코드
 var firebaseConfig = {
-  apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
-  authDomain: "yyjdb-1e121.firebaseapp.com",
-  databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
-  projectId: "yyjdb-1e121",
-  storageBucket: "yyjdb-1e121.firebasestorage.app",
-  messagingSenderId: "455353963754",
-  appId: "1:455353963754:web:2a64f5411a4061e9143393"
+    apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
+    authDomain: "yyjdb-1e121.firebaseapp.com",
+    databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
+    projectId: "yyjdb-1e121",
+    storageBucket: "yyjdb-1e121.firebasestorage.app",
+    messagingSenderId: "455353963754",
+    appId: "1:455353963754:web:2a64f5411a4061e9143393"
 };
+
 firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
-  const auth = firebase.auth();
-  console.log("Firestore 초기화 확인:", db);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    console.log("Firestore 초기화 확인:", db);
 
-    async function validateLogin() {
-        if (event) event.preventDefault(); // 기본 동작 방지
+// getSelectedTeam 함수 정의
+async function getSelectedTeam(username) {
+    try {
+        const userQuery = await db.collection("User").where("ID", "==", username).get();
 
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const errorMessage = document.getElementById("error-message");
+        console.log("User Query Result:", userQuery); // 쿼리 결과 확인
 
-        console.log("Username 입력값:", username); // 디버깅 로그
-        console.log("Password 입력값:", password); // 디버깅 로그
+        if (userQuery.empty) {
+            console.log("존재하지 않는 사용자 ID입니다.");
+            return null;
+        }
 
-        // 빈 필드 확인
-        if (username === "" || password === "") {
+        let selectedTeam = null;
+        userQuery.forEach((doc) => {
+            const data = doc.data();
+            console.log("Firestore에서 가져온 데이터:", data);
+            selectedTeam = data.selected_team; // selected_team 값 가져오기
+        });
+        console.log("Selected Team148:", selectedTeam);
+        return selectedTeam;
+    } catch (error) {
+        console.error("Firestore 데이터 불러오기 오류:", error);
+        return null;
+    }
+}
+
+async function validateLogin() {
+    if (event) event.preventDefault(); // 기본 동작 방지
+
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+    const errorMessage = document.getElementById("error-message");
+
+    console.log("Username 입력값:", username); // 디버깅 로그
+    console.log("Password 입력값:", password); // 디버깅 로그
+
+    // 빈 필드 확인
+    if (username === "" || password === "") {
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "아이디와 비밀번호를 입력하세요.";
+        console.log("아이디나 비밀번호가 비어 있습니다."); // 디버깅 로그
+        return false;
+    }
+
+    try {
+        // Firestore에서 해당 아이디 조회
+        console.log("Firestore에서 사용자 조회 중...");
+        const userQuery = await db.collection("User").where("ID", "==", username).get();
+
+        console.log("쿼리 결과:", userQuery); // 쿼리 반환값 확인
+        console.log("쿼리 빈 상태:", userQuery.empty); // 데이터가 없는지 확인
+
+
+        if (userQuery.empty) {
+            // 아이디가 없는 경우
+            console.log("존재하지 않는 아이디입니다."); // 디버깅 로그
             errorMessage.style.display = "block";
-            errorMessage.textContent = "아이디와 비밀번호를 입력하세요.";
-            console.log("아이디나 비밀번호가 비어 있습니다."); // 디버깅 로그
+            errorMessage.textContent = "존재하지 않는 아이디입니다.";
             return false;
         }
 
-        try {
-            // Firestore에서 해당 아이디 조회
-            console.log("Firestore에서 사용자 조회 중...");
-            const userQuery = await db.collection("User").where("ID", "==", username).get();
+        // Firestore에서 조회된 유저 데이터 확인
+        let userData;
+        userQuery.forEach((doc) => {
+            userData = doc.data();
+        });
+        console.log("조회된 사용자 데이터:", userData); // 디버깅 로그
+        // const selectedTeam = sessionStorage.getItem("selected_team");
+        // console.log("Selected Team:", selectedTeam);
 
-            console.log("쿼리 결과:", userQuery); // 쿼리 반환값 확인
-            console.log("쿼리 빈 상태:", userQuery.empty); // 데이터가 없는지 확인
 
+        // let selected_team;
+        // userQuery.forEach((doc) => {
+        //     userData = doc.data();
+        // });
+        
+        // 비밀번호 확인
+        if (userData.PW === password) {
+        console.log("비밀번호 일치: 로그인 성공!"); // 디버깅 로그
+        errorMessage.style.display = "none";
+        alert("로그인 성공!");
 
-            if (userQuery.empty) {
-                // 아이디가 없는 경우
-                console.log("존재하지 않는 아이디입니다."); // 디버깅 로그
-                errorMessage.style.display = "block";
-                errorMessage.textContent = "존재하지 않는 아이디입니다.";
-                return false;
-            }
+        // // 세션 스토리지에 userID와 selected_team 저장
+        // sessionStorage.setItem("userID", username);
+        // sessionStorage.setItem("selected_team", userData.selected_team); // Firestore에서 가져온 selected_team 값 저장
+        // console.log("userName in sessionStorage:", sessionStorage.getItem("userID"));
+        // console.log("selected_team in sessionStorage:", sessionStorage.getItem("selected_team"));
 
-            // Firestore에서 조회된 유저 데이터 확인
-            let userData;
-            userQuery.forEach((doc) => {
-                userData = doc.data();
-            });
-            console.log("조회된 사용자 데이터:", userData); // 디버깅 로그
+        const selectedTeam = userData.selected_team;
+        console.log("Selected Team219:", selectedTeam);
 
-            let selected_team;
-            userQuery.forEach((doc) => {
-                userData = doc.data();
-            });
-            
-            // 비밀번호 확인
-            if (userData.PW === password) {
-            // 비밀번호 일치
-            console.log("비밀번호 일치: 로그인 성공!"); // 디버깅 로그
-            errorMessage.style.display = "none";
-            alert("로그인 성공!");
-
-            // 세션 스토리지에 userID와 selected_team 저장
+        if (selectedTeam) {
+            // 세션 스토리지에 저장
             sessionStorage.setItem("userID", username);
-            sessionStorage.setItem("selected_team", userData.selected_team); // Firestore에서 가져온 selected_team 값 저장
-            console.log("userName in sessionStorage:", sessionStorage.getItem("userID"));
-            console.log("selected_team in sessionStorage:", sessionStorage.getItem("selected_team"));
-
-            // 메인 페이지로 이동
-            window.location.href = "calendar.html"; // 메인 페이지로 이동
-            } else {
-                // 비밀번호 불일치
-                console.log("비밀번호 불일치"); // 디버깅 로그
-                errorMessage.style.display = "block";
-                errorMessage.textContent = "비밀번호가 일치하지 않습니다.";
-            }
-        } catch (error) {
-            console.error("로그인 오류:", error);
-            errorMessage.style.display = "block";
-            errorMessage.textContent = "로그인 중 오류가 발생했습니다.";
+            sessionStorage.setItem("selected_team", selectedTeam);
+            console.log("Selected Team 저장 완료:", selectedTeam);
         }
-
-        return false; // 기본 폼 제출 방지
+        
+        // 메인 페이지로 이동
+        window.location.href = "calendar.html"; // 메인 페이지로 이동
+        } else {
+            // 비밀번호 불일치
+            console.log("비밀번호 불일치"); // 디버깅 로그
+            errorMessage.style.display = "block";
+            errorMessage.textContent = "비밀번호가 일치하지 않습니다.";
+        }
+    } catch (error) {
+        console.error("로그인 오류:", error);
+        errorMessage.style.display = "block";
+        errorMessage.textContent = "로그인 중 오류가 발생했습니다.";
     }
+
+    return false; // 기본 폼 제출 방지
+}
 </script>
 
 </body>
