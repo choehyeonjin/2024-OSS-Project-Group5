@@ -283,11 +283,12 @@
             <!--<img src="images/KTwiz.jpg" alt="달력 이미지" width="150">-->
             <div style="position: relative; width: 300px; height: 300px; border: 1px solid white;">
                 <!-- 배경 이미지 -->
-                <img id="calendarBackground" src="images/KTwiz.jpg" alt="달력 배경 이미지" style="width: 300px; height: 300px; object-fit: contain;">
+                <img id="calendarBackground" src="images/DOOSANbears.jpg" alt="달력 배경 이미지" style="width: 300px; height: 300px; object-fit: contain;">
+
 
                 <!-- 월 숫자 텍스트 -->
                 <div class="calendar-text">
-                    <p>changeYearMonth()</p>
+                    <p></p>
                 </div>
             </div>
 
@@ -330,29 +331,67 @@
     <script src="calendar.js"></script>
     <script>
         const teamImages = {
-            "두산 베어스": "DOOSANbears.jpg",
-            "한화 이글스": "HANHWAeagles.jpg",
-            "KIA 타이거즈": "KIAtigers.jpg",
-            "키움 히어로즈": "KIWOOMheroes.jpg",
-            "KT 위즈": "KTwiz.jpg",
-            "LG 트윈스": "LGtwins.jpg",
-            "롯데 자이언츠": "LOTTEgiants.jpg",
-            "NC 다이노스": "NCdinos.jpg",
-            "삼성 라이온즈": "SAMSUNGlions.jpg",
-            "SSG 랜더스": "SSGlanders.jpg"
+            "두산 베어스": "images/DOOSANbears.jpg",
+            "한화 이글스": "images/HANHWAeagles.jpg",
+            "KIA 타이거즈": "images/KIAtigers.jpg",
+            "키움 히어로즈": "images/KIWOOMheroes.jpg",
+            "KT 위즈": "images/KTwiz.jpg",
+            "LG 트윈스": "images/LGtwins.jpg",
+            "롯데 자이언츠": "images/LOTTEgiants.jpg",
+            "NC 다이노스": "images/NCdinos.jpg",
+            "삼성 라이온즈": "images/SAMSUNGlions.jpg",
+            "SSG 랜더스": "images/SSGlanders.jpg"
+        };
+
+
+        window.onload = function() {
+            // URL 파라미터에서 selected_team을 가져옵니다.
+            const urlParams = new URLSearchParams(window.location.search);
+            const selectedTeam = urlParams.get('selected_team') ? decodeURIComponent(urlParams.get('selected_team')) : "두산 베어스"; 
+
+            console.log("Selected Team:", selectedTeam); // 로그로 출력하여 확인
+
+            // teamImages 객체에 해당하는 이미지 경로를 설정합니다.
+            const teamImages = {
+                "두산 베어스": "images/DOOSANbears.jpg",
+                "한화 이글스": "images/HANHWAeagles.jpg",
+                "KIA 타이거즈": "images/KIAtigers.jpg",
+                "키움 히어로즈": "images/KIWOOMheroes.jpg",
+                "KT 위즈": "images/KTwiz.jpg",
+                "LG 트윈스": "images/LGtwins.jpg",
+                "롯데 자이언츠": "images/LOTTEgiants.jpg",
+                "NC 다이노스": "images/NCdinos.jpg",
+                "삼성 라이온즈": "images/SAMSUNGlions.jpg",
+                "SSG 랜더스": "images/SSGlanders.jpg"
+            };
+
+            // 배경 이미지 설정
+            const imgElement = document.getElementById("calendarBackground");
+
+            if (selectedTeam && teamImages[selectedTeam]) {
+                imgElement.src = teamImages[selectedTeam];
+            } else {
+                imgElement.src = "/images/KTwiz.jpg"; // 디폴트 이미지 경로 "/images/default.jpg"
+                console.warn("No valid team selected, using default image.");
+            }
         };
 
         // Assume selected_team is passed to the calendar.html as a query parameter
         const urlParams = new URLSearchParams(window.location.search);
-        const selectedTeam = urlParams.get('selected_team');
+        const selectedTeam = urlParams.get('selected_team') ? decodeURIComponent(urlParams.get('selected_team')) : "두산 베어스"; // 예시로 두산 베어스
+
+        console.log("Selected Team Image Path:", teamImages[selectedTeam]);
 
         // Update the background image based on the selected team
         if (selectedTeam && teamImages[selectedTeam]) {
             const imgElement = document.getElementById("calendarBackground");
-            imgElement.src = `images/${teamImages[selectedTeam]}`;
+            imgElement.src = teamImages[selectedTeam]; // teamImages[selectedTeam] 경로를 가져와 이미지 설정
         } else {
+            const imgElement = document.getElementById("calendarBackground");
+            imgElement.src = "assets/images/default.jpg"; // 디폴트 이미지 경로
             console.warn("No valid team selected, using default image.");
         }
+
 
         let currentDate = new Date();
         let selectedDayElement = null;
@@ -370,10 +409,11 @@
 
             for (let month = 1; month <= 12; month++) {
                 const option = document.createElement("option");
-                option.value = month - 1;
-                option.textContent = month;
+                option.value = month;
+                option.textContent = `${month}`.padStart(2, "0");
                 monthSelect.appendChild(option);
             }
+
 
             yearSelect.value = currentDate.getFullYear();
             monthSelect.value = currentDate.getMonth();
@@ -393,7 +433,7 @@
             <div class="day-header">THU</div>
             <div class="day-header">FRI</div>
             <div class="day-header">SAT</div>
-        `;
+            `;
 
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
@@ -461,24 +501,6 @@
             document.getElementById("yearSelect").value = currentDate.getFullYear();
             document.getElementById("monthSelect").value = currentDate.getMonth();
         }
-
-        /*
-        // 날짜 클릭 이벤트
-        document.getElementById("calendarGrid").addEventListener("click", function (e) {
-            const dayElement = e.target.closest(".calendar-day");
-            if (dayElement) {
-                if (selectedDayElement) {
-                    selectedDayElement.classList.remove("selected");
-                }
-
-                selectedDayElement = dayElement;
-                selectedDayElement.classList.add("selected");
-
-                // 파일 업로드 창 열기
-                document.getElementById("imageUpload").click();
-            }
-        });
-        */
 
         document.getElementById("imageUpload").addEventListener("change", function () {
             const file = this.files[0];

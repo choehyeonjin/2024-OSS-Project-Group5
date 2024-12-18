@@ -113,18 +113,18 @@
 <script>
 // Firebase 초기화 코드
 var firebaseConfig = {
-    apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
-    authDomain: "yyjdb-1e121.firebaseapp.com",
-    databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
-    projectId: "yyjdb-1e121",
-    storageBucket: "yyjdb-1e121.firebasestorage.app",
-    messagingSenderId: "455353963754",
-    appId: "1:455353963754:web:2a64f5411a4061e9143393"
+  apiKey: "AIzaSyAx3iFpiJFVA_UTyHSKw0m1Ke2GEns1TJA",
+  authDomain: "yyjdb-1e121.firebaseapp.com",
+  databaseURL: "https://yyjdb-1e121-default-rtdb.firebaseio.com",
+  projectId: "yyjdb-1e121",
+  storageBucket: "yyjdb-1e121.firebasestorage.app",
+  messagingSenderId: "455353963754",
+  appId: "1:455353963754:web:2a64f5411a4061e9143393"
 };
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
-console.log("Firestore 초기화 확인:", db);
+  const db = firebase.firestore();
+  const auth = firebase.auth();
+  console.log("Firestore 초기화 확인:", db);
 
     async function validateLogin() {
         if (event) event.preventDefault(); // 기본 동작 방지
@@ -168,18 +168,26 @@ console.log("Firestore 초기화 확인:", db);
             });
             console.log("조회된 사용자 데이터:", userData); // 디버깅 로그
 
+            let selected_team;
+            userQuery.forEach((doc) => {
+                userData = doc.data();
+            });
+            
             // 비밀번호 확인
             if (userData.PW === password) {
-                // 비밀번호 일치
-                console.log("비밀번호 일치: 로그인 성공!"); // 디버깅 로그
-                errorMessage.style.display = "none";
-                alert("로그인 성공!");
-                // 세션 스토리지에 userID 저장
-sessionStorage.setItem("userID", username); 
-console.log("userName in sessionStorage:", sessionStorage.getItem("userID"));
+            // 비밀번호 일치
+            console.log("비밀번호 일치: 로그인 성공!"); // 디버깅 로그
+            errorMessage.style.display = "none";
+            alert("로그인 성공!");
 
+            // 세션 스토리지에 userID와 selected_team 저장
+            sessionStorage.setItem("userID", username);
+            sessionStorage.setItem("selected_team", userData.selected_team); // Firestore에서 가져온 selected_team 값 저장
+            console.log("userName in sessionStorage:", sessionStorage.getItem("userID"));
+            console.log("selected_team in sessionStorage:", sessionStorage.getItem("selected_team"));
 
-                window.location.href = "calendar.html"; // 메인 페이지로 이동
+            // 메인 페이지로 이동
+            window.location.href = "calendar.html"; // 메인 페이지로 이동
             } else {
                 // 비밀번호 불일치
                 console.log("비밀번호 불일치"); // 디버깅 로그
